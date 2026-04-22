@@ -31,29 +31,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="Monstros"
+            <Tabs.Screen
+              name="Monstros"
         options={{
           title: 'Monstros',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flutter-dash" color={color} />,
+                tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flutter-dash" color={color} />,
         }}
       />
-      
-      <Tabs.Screen
-        name="MonstrosListScreen"
-        options={{
-          title: 'Lista de Monstros',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="list" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="FeiticosListScreen"
-        options={{
-          title: 'Feitiços',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="bolt" color={color} />,
-        }}
-      />
-
     </Tabs>
   );
 }

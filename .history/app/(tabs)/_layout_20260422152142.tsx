@@ -46,11 +46,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="list" color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="FeiticosListScreen"
         options={{
           title: 'Feitiços',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="bolt" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flash" color={color} />,
         }}
       />
 

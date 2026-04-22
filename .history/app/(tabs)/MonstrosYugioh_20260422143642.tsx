@@ -5,7 +5,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
-export default function novaAba() {
+export default function MonstrosYugioh() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -16,32 +16,30 @@ export default function novaAba() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Aves Exóticas</ThemedText>
+        <ThemedText type="title">Monstros Yu-Gi-Oh</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">O que são aves?</ThemedText>
+        <ThemedText type="subtitle">O que são monstros Yu-Gi-Oh?</ThemedText>
         <ThemedText>
-          As aves são animais vertebrados com penas, bico e asas. A maioria delas poe ovos e tem
-          corpo adaptado para voar, embora algumas espécies vivam mais no solo ou na água.
-          Pássaros, corujas, araras e pinguins são exemplos de aves presentes em diferentes
-          ambientes do planeta.
+          Os monstros Yu-Gi-Oh são criaturas fictícias representadas em cartas de jogo. Cada monstro
+          possui atributos como ataque, defesa, nível e tipo, que determinam seu papel no duelo.
+          Exemplos incluem o Dragão Branco de Olhos Azuis, o Mago Negro e o Dragão Negro de Olhos Vermelhos.
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">O que são aves exóticas?</ThemedText>
+        <ThemedText type="subtitle">Tipos de monstros</ThemedText>
         <ThemedText>
-          Aves exóticas são aves que não são nativas de uma determinada região. Em outras palavras,
-          elas vieram de outro país ou bioma e foram introduzidas em um novo local. Alguns exemplos
-          comuns são calopsitas, cacatuas e certas espécies de papagaios mantidas como animais de
-          companhia.
+          Os monstros são classificados em tipos como Dragão, Mago, Guerreiro, Demônio, entre outros.
+          Cada tipo tem características únicas e estratégias específicas no jogo. Monstros de efeito,
+          normais e de ritual oferecem diferentes mecânicas para os duelistas.
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Cuidados e conservação</ThemedText>
+        <ThemedText type="subtitle">Estratégias e decks</ThemedText>
         <ThemedText>
-          O cuidado com aves exóticas exige responsabilidade, alimentação adequada e ambiente
-          apropriado para o bem-estar do animal. Também é importante evitar o tráfico ilegal e
-          apoiar a conservação das espécies, respeitando sempre as normas ambientais.
+          Construir um deck com monstros equilibrados é essencial para vencer duelos. É importante
+          considerar sinergias entre cartas, combos poderosos e contra-estratégias contra oponentes.
+          Sempre respeite as regras do jogo e divirta-se duelando!
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>

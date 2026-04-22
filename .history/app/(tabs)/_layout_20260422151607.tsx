@@ -32,14 +32,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Monstros"
-        options={{
-          title: 'Monstros',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flutter-dash" color={color} />,
-        }}
-      />
-      
-      <Tabs.Screen
         name="MonstrosListScreen"
         options={{
           title: 'Lista de Monstros',
@@ -47,13 +39,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="FeiticosListScreen"
+        name="Monstros"
         options={{
-          title: 'Feitiços',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="bolt" color={color} />,
+          title: 'Monstros',
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flutter-dash" color={color} />,
         }}
       />
-
     </Tabs>
   );
 }
