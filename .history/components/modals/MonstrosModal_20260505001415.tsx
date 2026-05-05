@@ -1,6 +1,7 @@
+import React, { useEffect } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { useState } from 'react';
 import { IMonstros } from '@/interfaces/IMonstros';
-import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export type MonstroModalProps = {
   visible: boolean;

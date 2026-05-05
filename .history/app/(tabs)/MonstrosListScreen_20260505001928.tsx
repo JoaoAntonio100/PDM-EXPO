@@ -1,72 +1,66 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 
-import Feiticos from '@/components/Feitiços/feiticos';
-import FeiticosModal from '@/components/modals/FeiticosModal';
+import MonstrosModal from '@/components/modals/MonstrosModal';
+import Monstros from '@/components/Monstros/monstros';
 import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
-import { IFeiticos } from '@/interfaces/IFeiticos';
+import { IMonstros } from '@/interfaces/IMonstros';
 import { useState } from 'react';
 
-export default function FeiticosListScreen() {
-  const [feiticos, setFeiticos] = useState<IFeiticos[]>([]);
+export default function MonstrosListScreen() {
+  const [monstros, setMonstros] = useState<IMonstros[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedFeitico, setSelectedFeitico] = useState<IFeiticos>();
+  const [selectedMonstro, setSelectedMonstro] = useState<IMonstros>();
 
   const onAdd = (title: string, subTitle: string, id: number) => {
 
     if (id <= 0) {
-      const newFeitico: IFeiticos = {
+      const newMonstro: IMonstros = {
         id: Math.random() * 1000,
         title: title,
         subTitle: subTitle
       };
 
-      const feiticosPlus: IFeiticos[] = [
-        ...feiticos,
-        newFeitico
+      const monstrosPlus: IMonstros[] = [
+        ...monstros,
+        newMonstro
       ];
 
-      setFeiticos(feiticosPlus);
+      setMonstros(monstrosPlus);
     } else {
-      const updatedFeiticos = feiticos.map(feitico => {
-        if (feitico.id === id) {
-          return {
-            ...feitico,
-            title,
-            subTitle,
-          };
+      monstros.forEach(monstro => {
+        if (monstro.id == id) {
+          monstro.title = title;
+          monstro.subTitle = subTitle;
         }
-        return feitico;
       });
-
-      setFeiticos(updatedFeiticos);
     }
 
     setModalVisible(false);
   };
 
   const onDelete = (id: number) => {
-    const newFeiticos: Array<IFeiticos> = [];
+    const newMonstros: Array<IMonstros> = [];
 
-    for (let index = 0; index < feiticos.length; index++) {
-      const feitico = feiticos[index];
+    for (let index = 0; index < monstros.length; index++) {
+      const monstro = monstros[index];
 
-      if (feitico.id != id) {
-        newFeiticos.push(feitico);
+      if (monstro.id != id) {
+        newMonstros.push(monstro);
       }
     }
 
-    setFeiticos(newFeiticos);
+    setMonstros(newMonstros);
     setModalVisible(false);
   };
 
   const openModal = () => {
-    setSelectedFeitico(undefined);
+    setSelectedMonstro(undefined);
     setModalVisible(true);
   };
 
-  const openEditModal = (selectedFeitico: IFeiticos) => {
-    setSelectedFeitico(selectedFeitico);
+  const openEditModal = (selectedMonstro: IMonstros) => {
+    setSelectedMonstro(selectedMonstro);
     setModalVisible(true);
   };
 
@@ -85,22 +79,22 @@ export default function FeiticosListScreen() {
       </ThemedView>
 
       <ThemedView style={styles.container}>
-        {feiticos.map(feitico => (
-          <TouchableOpacity onPress={() => openEditModal(feitico)} key={feitico.id}>
-            <Feiticos
-              title={feitico.title}
-              subTitle={feitico.subTitle}
+        {monstros.map(monstro => (
+          <TouchableOpacity onPress={() => openEditModal(monstro)} key={monstro.id}>
+            <Monstros
+              title={monstro.title}
+              subTitle={monstro.subTitle}
             />
           </TouchableOpacity>
         ))}
       </ThemedView>
 
-      <FeiticosModal
+      <MonstrosModal
         visible={modalVisible}
         onCancel={closeModal}
         onAdd={onAdd}
         onDelete={onDelete}
-        feitico={selectedFeitico}
+        monstro={selectedMonstro}
       />
     </MonstrosScrollView>
   );

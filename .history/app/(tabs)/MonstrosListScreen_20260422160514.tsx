@@ -7,61 +7,29 @@ import { ThemedView } from '@/components/themed-view';
 import { IMonstros } from '@/interfaces/IMonstros';
 import { useState } from 'react';
 
+
+
 export default function MonstrosListScreen() {
   const [monstros, setMonstros] = useState<IMonstros[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedMonstro, setSelectedMonstro] = useState<IMonstros>();
 
-  const onAdd = (title: string, subTitle: string, id: number) => {
+  const onAddMonstro = (title: string, subTitle: string) => {
+    const newMonstro: IMonstros = {
+      id: Math.random() *1000,
+      title: title,
+      subTitle: subTitle
+    };
 
-    if (id <= 0) {
-      const newMonstro: IMonstros = {
-        id: Math.random() * 1000,
-        title: title,
-        subTitle: subTitle
-      };
+    const monstrosPlus: IMonstros[] = [
+      ...monstros,
+      newMonstro
+    ];
 
-      const monstrosPlus: IMonstros[] = [
-        ...monstros,
-        newMonstro
-      ];
-
-      setMonstros(monstrosPlus);
-    } else {
-      monstros.forEach(monstro => {
-        if (monstro.id == id) {
-          monstro.title = title;
-          monstro.subTitle = subTitle;
-        }
-      });
-      setMonstros([...monstros]);
-    }
-
-    setModalVisible(false);
-  };
-
-  const onDelete = (id: number) => {
-    const newMonstros: Array<IMonstros> = [];
-
-    for (let index = 0; index < monstros.length; index++) {
-      const monstro = monstros[index];
-
-      if (monstro.id != id) {
-        newMonstros.push(monstro);
-      }
-    }
-
-    setMonstros(newMonstros);
+    setMonstros(monstrosPlus);
     setModalVisible(false);
   };
 
   const openModal = () => {
-    setSelectedMonstro(undefined);
-    setModalVisible(true);
-  };
-
-  const openEditModal = (selectedMonstro: IMonstros) => {
-    setSelectedMonstro(selectedMonstro);
     setModalVisible(true);
   };
 
@@ -70,9 +38,7 @@ export default function MonstrosListScreen() {
   };
 
   return (
-    <MonstrosScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    >
+    <MonstrosScrollView headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.headerContainer}>
         <TouchableOpacity onPress={() => openModal()}>
           <Text style={styles.headerButton}>+</Text>
@@ -81,21 +47,18 @@ export default function MonstrosListScreen() {
 
       <ThemedView style={styles.container}>
         {monstros.map(monstro => (
-          <TouchableOpacity onPress={() => openEditModal(monstro)} key={monstro.id}>
-            <Monstros
-              title={monstro.title}
-              subTitle={monstro.subTitle}
-            />
-          </TouchableOpacity>
+          <Monstros
+            key={monstro.id}
+            title={monstro.title}
+            subTitle={monstro.subTitle}
+          />
         ))}
       </ThemedView>
 
       <MonstrosModal
         visible={modalVisible}
         onCancel={closeModal}
-        onAdd={onAdd}
-        onDelete={onDelete}
-        monstro={selectedMonstro}
+        onAdd={onAddMonstro}
       />
     </MonstrosScrollView>
   );

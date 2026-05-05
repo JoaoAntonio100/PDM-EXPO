@@ -1,6 +1,7 @@
+import React, { useEffect } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { useState } from 'react';
 import { IMonstros } from '@/interfaces/IMonstros';
-import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export type MonstroModalProps = {
   visible: boolean;
@@ -100,15 +101,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   buttonCancel: {
-    backgroundColor: 'orange',
-    borderRadius: 5,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 10,
-    padding: 20,
-  },
-  buttonDelete: {
     backgroundColor: 'red',
     borderRadius: 5,
     flex: 1,

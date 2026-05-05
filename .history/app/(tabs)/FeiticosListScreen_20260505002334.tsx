@@ -28,18 +28,12 @@ export default function FeiticosListScreen() {
 
       setFeiticos(feiticosPlus);
     } else {
-      const updatedFeiticos = feiticos.map(feitico => {
-        if (feitico.id === id) {
-          return {
-            ...feitico,
-            title,
-            subTitle,
-          };
+      feiticos.forEach(feitico => {
+        if (feitico.id == id) {
+          feitico.title = title;
+          feitico.subTitle = subTitle;
         }
-        return feitico;
       });
-
-      setFeiticos(updatedFeiticos);
     }
 
     setModalVisible(false);

@@ -1,32 +1,33 @@
-import { IMonstros } from '@/interfaces/IMonstros';
-import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { useState } from 'react';
+import { IFeiticos } from '@/interfaces/IFeiticos';
 
-export type MonstroModalProps = {
+export type FeiticosModalProps = {
   visible: boolean;
   onAdd: (title: string, subTitle: string, id: number) => void;
   onCancel: () => void;
   onDelete: (id: number) => void;
-  monstro?: IMonstros;
+  feitico?: IFeiticos;
 };
 
-export default function MonstroModal({visible, onAdd, onCancel, onDelete, monstro}: MonstroModalProps) {
+export default function FeiticosModal({visible, onAdd, onCancel, onDelete, feitico}: FeiticosModalProps) {
 
   const [title, setTitle] = useState<string>('');
   const [subTitle, setSubTitle] = useState<string>('');
   const [id, setId] = useState<number>(0);
 
   useEffect(() => {
-    if(monstro){
-      setTitle(monstro.title);
-      setSubTitle(monstro.subTitle);
-      setId(monstro.id);
+    if(feitico){
+      setTitle(feitico.title);
+      setSubTitle(feitico.subTitle);
+      setId(feitico.id);
     }else{
       setTitle('');
       setSubTitle('');
       setId(0);
     }
-  }, [monstro])
+  }, [feitico])
 
   return(
     <Modal visible={visible} animationType='fade' transparent={true} onRequestClose={() => {}}>
@@ -34,7 +35,7 @@ export default function MonstroModal({visible, onAdd, onCancel, onDelete, monstr
         <View style={styles.boxContainer}>
           <TextInput
             style={styles.boxInput}
-            placeholder='Monstro'
+            placeholder='Nome do Feitiço'
             value={title}
             onChangeText={text => setTitle(text)}
             autoFocus
@@ -44,7 +45,7 @@ export default function MonstroModal({visible, onAdd, onCancel, onDelete, monstr
             style={styles.boxInput}
             value={subTitle}
             onChangeText={text => setSubTitle(text)}
-            placeholder='Arquétipo do Monstro'
+            placeholder='Arquétipo do Feitiço'
           />
 
           <View style={styles.buttonContainer}>

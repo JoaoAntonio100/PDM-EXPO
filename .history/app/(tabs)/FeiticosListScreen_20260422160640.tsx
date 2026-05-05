@@ -10,63 +10,24 @@ import { useState } from 'react';
 export default function FeiticosListScreen() {
   const [feiticos, setFeiticos] = useState<IFeiticos[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedFeitico, setSelectedFeitico] = useState<IFeiticos>();
 
-  const onAdd = (title: string, subTitle: string, id: number) => {
+  const onAddFeitico = (title: string, subTitle: string) => {
+    const newFeitico: IFeiticos = {
+      id: Math.random() *1000,
+      title: title,
+      subTitle: subTitle
+    };
 
-    if (id <= 0) {
-      const newFeitico: IFeiticos = {
-        id: Math.random() * 1000,
-        title: title,
-        subTitle: subTitle
-      };
+    const feiticosPlus: IFeiticos[] = [
+      ...feiticos,
+      newFeitico
+    ];
 
-      const feiticosPlus: IFeiticos[] = [
-        ...feiticos,
-        newFeitico
-      ];
-
-      setFeiticos(feiticosPlus);
-    } else {
-      const updatedFeiticos = feiticos.map(feitico => {
-        if (feitico.id === id) {
-          return {
-            ...feitico,
-            title,
-            subTitle,
-          };
-        }
-        return feitico;
-      });
-
-      setFeiticos(updatedFeiticos);
-    }
-
-    setModalVisible(false);
-  };
-
-  const onDelete = (id: number) => {
-    const newFeiticos: Array<IFeiticos> = [];
-
-    for (let index = 0; index < feiticos.length; index++) {
-      const feitico = feiticos[index];
-
-      if (feitico.id != id) {
-        newFeiticos.push(feitico);
-      }
-    }
-
-    setFeiticos(newFeiticos);
+    setFeiticos(feiticosPlus);
     setModalVisible(false);
   };
 
   const openModal = () => {
-    setSelectedFeitico(undefined);
-    setModalVisible(true);
-  };
-
-  const openEditModal = (selectedFeitico: IFeiticos) => {
-    setSelectedFeitico(selectedFeitico);
     setModalVisible(true);
   };
 
@@ -75,9 +36,7 @@ export default function FeiticosListScreen() {
   };
 
   return (
-    <MonstrosScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    >
+    <MonstrosScrollView headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.headerContainer}>
         <TouchableOpacity onPress={() => openModal()}>
           <Text style={styles.headerButton}>+</Text>
@@ -86,21 +45,18 @@ export default function FeiticosListScreen() {
 
       <ThemedView style={styles.container}>
         {feiticos.map(feitico => (
-          <TouchableOpacity onPress={() => openEditModal(feitico)} key={feitico.id}>
-            <Feiticos
-              title={feitico.title}
-              subTitle={feitico.subTitle}
-            />
-          </TouchableOpacity>
+          <Feiticos
+            key={feitico.id}
+            title={feitico.title}
+            subTitle={feitico.subTitle}
+          />
         ))}
       </ThemedView>
 
       <FeiticosModal
         visible={modalVisible}
         onCancel={closeModal}
-        onAdd={onAdd}
-        onDelete={onDelete}
-        feitico={selectedFeitico}
+        onAdd={onAddFeitico}
       />
     </MonstrosScrollView>
   );
