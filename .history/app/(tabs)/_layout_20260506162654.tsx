@@ -50,7 +50,7 @@ export default function TabLayout() {
         name="MonstrosYugioh"
         options={{
           title: 'Monstros Yu-Gi-Oh',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="gamepad" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="flash" color={color} />,
         }}
       />
       <Tabs.Screen

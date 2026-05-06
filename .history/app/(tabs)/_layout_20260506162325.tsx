@@ -47,13 +47,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="MonstrosYugioh"
-        options={{
-          title: 'Monstros Yu-Gi-Oh',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="gamepad" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="FeiticosListScreen"
         options={{
           title: 'Feitiços',
