@@ -91,8 +91,8 @@ const styles = StyleSheet.create({
   },
   buttonAdd: {
     backgroundColor: 'green',
-    borderRadius: 10,
-    flex: 2,
+    borderRadius: 5,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
   },
   buttonCancel: {
     backgroundColor: 'orange',
-    borderRadius: 10,
-    flex: 2,
+    borderRadius: 5,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
   },
   buttonDelete: {
     backgroundColor: 'red',
-    borderRadius: 10,
-    flex: 2,
+    borderRadius: 5,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,

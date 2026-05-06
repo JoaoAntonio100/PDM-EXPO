@@ -1,40 +1,39 @@
 import { ThemedText } from '@/components/themed-text';
-import { IFeiticos } from '@/interfaces/IFeiticos';
+import { IMonstros } from '@/interfaces/IMonstros';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export type CreateFeiticoScreenProps = {
+export type CreateMonstroScreenProps = {
   onAdd: (title: string, subTitle: string, id: number) => void;
   onCancel: () => void;
   onDelete: (id: number) => void;
-  feitico?: IFeiticos;
+  monstro?: IMonstros;
 };
 
-export default function CreateFeiticoScreen({ onAdd, onCancel, onDelete, feitico }: CreateFeiticoScreenProps) {
+export default function CreateMonstroScreen({ onAdd, onCancel, onDelete, monstro }: CreateMonstroScreenProps) {
   const [title, setTitle] = useState<string>('');
   const [subTitle, setSubTitle] = useState<string>('');
   const [id, setId] = useState<number>(0);
 
   useEffect(() => {
-    if (feitico) {
-      setTitle(feitico.title);
-      setSubTitle(feitico.subTitle);
-      setId(feitico.id);
+    if (monstro) {
+      setTitle(monstro.title);
+      setSubTitle(monstro.subTitle);
+      setId(monstro.id);
     } else {
       setTitle('');
       setSubTitle('');
       setId(0);
     }
-  }, [feitico]);
+  }, [monstro]);
 
   return (
     <View style={styles.container}>
-
-        <ThemedText type="title" style={styles.title}>Criar Feitiço</ThemedText>
+        <ThemedText type="title" style={styles.title}>Criar Monstro</ThemedText>
 
         <TextInput
           style={styles.boxInput}
-          placeholder='Nome do Feitiço'
+          placeholder='Monstro'
           value={title}
           onChangeText={text => setTitle(text)}
           autoFocus
@@ -44,7 +43,7 @@ export default function CreateFeiticoScreen({ onAdd, onCancel, onDelete, feitico
           style={styles.boxInput}
           value={subTitle}
           onChangeText={text => setSubTitle(text)}
-          placeholder='Arquétipo do Feitiço'
+          placeholder='Arquétipo do Monstro'
         />
 
         <View style={styles.buttonContainer}>
@@ -62,6 +61,7 @@ export default function CreateFeiticoScreen({ onAdd, onCancel, onDelete, feitico
 
         </View>
       </View>
+
   );
 }
 
@@ -71,14 +71,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    padding: 20,
-  },
-  boxContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
     padding: 20,
   },
   title: {
@@ -123,8 +115,8 @@ const styles = StyleSheet.create({
   },
   boxInput: {
     alignSelf: 'center',
-    height: 50,
-    width: 1000,
+    height: 60,
+    width: 700,
     borderRadius: 10,
     backgroundColor: '#DDD',
     margin: 5,
