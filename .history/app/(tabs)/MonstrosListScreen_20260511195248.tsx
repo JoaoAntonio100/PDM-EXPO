@@ -6,77 +6,56 @@ import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
 import { IMonstros } from '@/interfaces/IMonstros';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 
 export default function MonstrosListScreen() {
   const [monstros, setMonstros] = useState<IMonstros[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedMonstro, setSelectedMonstro] = useState<IMonstros>();
-  const [location, setLocation] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
-    async function getData() {
+    async function loadMonstros() {
       try {
         const data = await AsyncStorage.getItem('@PDM-EXPO:monstros');
         const savedMonstros = data != null ? JSON.parse(data) : [];
         setMonstros(savedMonstros);
       } catch (e) {
+        console.error('Failed to load monstros from storage', e);
       }
     }
 
-    getData();
+    loadMonstros();
   }, []);
 
-  useEffect(() => {
-    (async () => {
+  const onAdd = async (title: string, subTitle: string, id: number) => {
+    let newMonstros: IMonstros[];
 
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
-
-    let text = 'Waiting...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-
-  const onAdd = async (title: string, subTitle: string, id?: number) => {
-    if (!id || id <= 0) {
+    if (id <= 0) {
       const newMonstro: IMonstros = {
         id: Math.random() * 1000,
         title: title,
         subTitle: subTitle
       };
 
-      const monstrosPlus: IMonstros[] = [
+      newMonstros = [
         ...monstros,
         newMonstro
       ];
-
-      setMonstros(monstrosPlus);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstrosPlus));
     } else {
-      monstros.forEach(monstro => {
-        if (monstro.id == id) {
-          monstro.title = title;
-          monstro.subTitle = subTitle;
+      newMonstros = monstros.map(monstro => {
+        if (monstro.id === id) {
+          return {
+            ...monstro,
+            title,
+            subTitle
+          };
         }
+        return monstro;
       });
-
-      setMonstros([...monstros]);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstros));
     }
 
+    setMonstros(newMonstros);
+    await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(newMonstros));
     setModalVisible(false);
   };
 
@@ -110,7 +89,6 @@ export default function MonstrosListScreen() {
     setModalVisible(false);
   };
 
-
   return (
     <MonstrosScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -119,7 +97,6 @@ export default function MonstrosListScreen() {
         <TouchableOpacity onPress={() => openModal()}>
           <Text style={styles.headerButton}>+</Text>
         </TouchableOpacity>
-        <Text style={styles.headerButton}>{text}</Text>
       </ThemedView>
 
       <ThemedView style={styles.container}>

@@ -43,13 +43,6 @@ export default function MonstrosListScreen() {
     })();
   }, []);
 
-    let text = 'Waiting...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-
   const onAdd = async (title: string, subTitle: string, id?: number) => {
     if (!id || id <= 0) {
       const newMonstro: IMonstros = {
@@ -110,6 +103,12 @@ export default function MonstrosListScreen() {
     setModalVisible(false);
   };
 
+  let text = 'Waiting...';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
 
   return (
     <MonstrosScrollView

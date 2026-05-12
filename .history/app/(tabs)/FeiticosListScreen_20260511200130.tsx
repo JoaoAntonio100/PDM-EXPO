@@ -1,28 +1,29 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
-import MonstrosModal from '@/components/modals/MonstrosModal';
-import Monstros from '@/components/Monstros/monstros';
+import Feiticos from '@/components/Feitiços/feiticos';
+import FeiticosModal from '@/components/modals/FeiticosModal';
 import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
-import { IMonstros } from '@/interfaces/IMonstros';
+import { IFeiticos } from '@/interfaces/IFeiticos';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 
-export default function MonstrosListScreen() {
-  const [monstros, setMonstros] = useState<IMonstros[]>([]);
+export default function FeiticosListScreen() {
+  const [feiticos, setFeiticos] = useState<IFeiticos[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedMonstro, setSelectedMonstro] = useState<IMonstros>();
+  const [selectedFeitico, setSelectedFeitico] = useState<IFeiticos>();
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
     async function getData() {
       try {
-        const data = await AsyncStorage.getItem('@PDM-EXPO:monstros');
-        const savedMonstros = data != null ? JSON.parse(data) : [];
-        setMonstros(savedMonstros);
+        const data = await AsyncStorage.getItem('@PDM-EXPO:feiticos');
+        const savedFeiticos = data != null ? JSON.parse(data) : [];
+        setFeiticos(savedFeiticos);
       } catch (e) {
+        console.error('Failed to load feiticos from storage', e);
       }
     }
 
@@ -31,7 +32,6 @@ export default function MonstrosListScreen() {
 
   useEffect(() => {
     (async () => {
-
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -49,60 +49,59 @@ export default function MonstrosListScreen() {
   } else if (location) {
     text = JSON.stringify(location);
   }
-
+  
   const onAdd = async (title: string, subTitle: string, id?: number) => {
-    if (!id || id <= 0) {
-      const newMonstro: IMonstros = {
+    let newFeiticos: IFeiticos[];
+
+    if (id <= 0) {
+      const newFeitico: IFeiticos = {
         id: Math.random() * 1000,
         title: title,
         subTitle: subTitle
       };
 
-      const monstrosPlus: IMonstros[] = [
-        ...monstros,
-        newMonstro
+      newFeiticos = [
+        ...feiticos,
+        newFeitico
       ];
-
-      setMonstros(monstrosPlus);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstrosPlus));
     } else {
-      monstros.forEach(monstro => {
-        if (monstro.id == id) {
-          monstro.title = title;
-          monstro.subTitle = subTitle;
+      feiticos.forEach(feitico => {
+        if (feitico.id == id) {
+          feitico.title = title;
+          feitico.subTitle = subTitle;
         }
       });
-
-      setMonstros([...monstros]);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstros));
+      newFeiticos = [...feiticos];
     }
 
+    setFeiticos(newFeiticos);
+    await AsyncStorage.setItem('@PDM-EXPO:feiticos', JSON.stringify(newFeiticos));
     setModalVisible(false);
   };
 
   const onDelete = async (id: number) => {
-    const newMonstros: Array<IMonstros> = [];
+    const newFeiticos: Array<IFeiticos> = [];
 
-    for (let index = 0; index < monstros.length; index++) {
-      const monstro = monstros[index];
+    for (let index = 0; index < feiticos.length; index++) {
+      const feitico = feiticos[index];
 
-      if (monstro.id != id) {
-        newMonstros.push(monstro);
+      if (feitico.id != id) {
+        newFeiticos.push(feitico);
       }
     }
 
-    setMonstros(newMonstros);
-    await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(newMonstros));
+    setFeiticos(newFeiticos);
+    await AsyncStorage.setItem('@PDM-EXPO:feiticos', JSON.stringify(newFeiticos));
     setModalVisible(false);
   };
 
   const openModal = () => {
-    setSelectedMonstro(undefined);
+    setSelectedFeitico(undefined);
     setModalVisible(true);
   };
 
-  const openEditModal = (selectedMonstro: IMonstros) => {
-    setSelectedMonstro(selectedMonstro);
+  const openEditModal = (selectedFeitico: IFeiticos) => {
+    setSelectedFeitico(selectedFeitico);
     setModalVisible(true);
   };
 
@@ -111,10 +110,10 @@ export default function MonstrosListScreen() {
   };
 
 
+
   return (
     <MonstrosScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    >
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.headerContainer}>
         <TouchableOpacity onPress={() => openModal()}>
           <Text style={styles.headerButton}>+</Text>
@@ -123,22 +122,22 @@ export default function MonstrosListScreen() {
       </ThemedView>
 
       <ThemedView style={styles.container}>
-        {monstros.map(monstro => (
-          <TouchableOpacity onPress={() => openEditModal(monstro)} key={monstro.id}>
-            <Monstros
-              title={monstro.title}
-              subTitle={monstro.subTitle}
+        {feiticos.map(feitico => (
+          <TouchableOpacity onPress={() => openEditModal(feitico)} key={feitico.id}>
+            <Feiticos
+              title={feitico.title}
+              subTitle={feitico.subTitle}
             />
           </TouchableOpacity>
         ))}
       </ThemedView>
 
-      <MonstrosModal
+      <FeiticosModal
         visible={modalVisible}
         onCancel={closeModal}
         onAdd={onAdd}
         onDelete={onDelete}
-        monstro={selectedMonstro}
+        feitico={selectedFeitico}
       />
     </MonstrosScrollView>
   );

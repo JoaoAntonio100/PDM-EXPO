@@ -5,19 +5,16 @@ import FeiticosModal from '@/components/modals/FeiticosModal';
 import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
 import { IFeiticos } from '@/interfaces/IFeiticos';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FeiticosListScreen() {
   const [feiticos, setFeiticos] = useState<IFeiticos[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedFeitico, setSelectedFeitico] = useState<IFeiticos>();
-  const [location, setLocation] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
-    async function getData() {
+    async function loadFeiticos() {
       try {
         const data = await AsyncStorage.getItem('@PDM-EXPO:feiticos');
         const savedFeiticos = data != null ? JSON.parse(data) : [];
@@ -27,33 +24,13 @@ export default function FeiticosListScreen() {
       }
     }
 
-    getData();
+    loadFeiticos();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
-
-    let text = 'Waiting...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-  
-  const onAdd = async (title: string, subTitle: string, id?: number) => {
+  const onAdd = async (title: string, subTitle: string, id: number) => {
     let newFeiticos: IFeiticos[];
 
-    if (!id || id <= 0) {
+    if (id <= 0) {
       const newFeitico: IFeiticos = {
         id: Math.random() * 1000,
         title: title,
@@ -65,13 +42,16 @@ export default function FeiticosListScreen() {
         newFeitico
       ];
     } else {
-      feiticos.forEach(feitico => {
-        if (feitico.id == id) {
-          feitico.title = title;
-          feitico.subTitle = subTitle;
+      newFeiticos = feiticos.map(feitico => {
+        if (feitico.id === id) {
+          return {
+            ...feitico,
+            title,
+            subTitle
+          };
         }
+        return feitico;
       });
-      newFeiticos = [...feiticos];
     }
 
     setFeiticos(newFeiticos);
@@ -109,7 +89,7 @@ export default function FeiticosListScreen() {
     setModalVisible(false);
   };
 
-
+  const text = '';
 
   return (
     <MonstrosScrollView
