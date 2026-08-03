@@ -1,162 +1,96 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import Feiticos from '@/components/Feitiços/feiticos';
-import FeiticosModal from '@/components/modals/FeiticosModal';
 import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
 import { IFeiticos } from '@/interfaces/IFeiticos';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
+
+const STORAGE_KEY = '@PDM-EXPO:feiticos';
 
 export default function FeiticosListScreen() {
   const [feiticos, setFeiticos] = useState<IFeiticos[]>([]);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedFeitico, setSelectedFeitico] = useState<IFeiticos>();
-  const [location, setLocation] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [gpsText, setGpsText] = useState('Obtendo localizacao...');
 
-  useEffect(() => {
-    async function getData() {
-      try {
-        const data = await AsyncStorage.getItem('@PDM-EXPO:feiticos');
-        const savedFeiticos = data != null ? JSON.parse(data) : [];
-        setFeiticos(savedFeiticos);
-      } catch (e) {
-        console.error('Failed to load feiticos from storage', e);
-      }
+  const loadFeiticos = useCallback(async () => {
+    try {
+      const data = await AsyncStorage.getItem(STORAGE_KEY);
+      const savedFeiticos = data != null ? JSON.parse(data) : [];
+      setFeiticos(savedFeiticos);
+    } catch (error) {
+      console.error('Failed to load feiticos', error);
     }
-
-    getData();
   }, []);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+    void loadFeiticos();
+  }, [loadFeiticos]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadFeiticos();
+    }, [loadFeiticos]),
+  );
+
+  useEffect(() => {
+    const loadLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        setGpsText('GPS sem permissao');
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
+      const location = await Location.getCurrentPositionAsync({});
+      const lat = location.coords.latitude.toFixed(4);
+      const lon = location.coords.longitude.toFixed(4);
+      setGpsText(`GPS: ${lat}, ${lon}`);
+    };
+
+    void loadLocation();
   }, []);
 
-    let text = 'Waiting...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-  
-  const onAdd = async (title: string, subTitle: string, id?: number) => {
-    let newFeiticos: IFeiticos[];
-
-    if (!id || id <= 0) {
-      const newFeitico: IFeiticos = {
-        id: Math.random() * 1000,
-        title: title,
-        subTitle: subTitle
-      };
-
-      newFeiticos = [
-        ...feiticos,
-        newFeitico
-      ];
-    } else {
-      feiticos.forEach(feitico => {
-        if (feitico.id == id) {
-          feitico.title = title;
-          feitico.subTitle = subTitle;
-        }
-      });
-      newFeiticos = [...feiticos];
-    }
-
-    setFeiticos(newFeiticos);
-    await AsyncStorage.setItem('@PDM-EXPO:feiticos', JSON.stringify(newFeiticos));
-    setModalVisible(false);
+  const openCreateScreen = () => {
+    router.push('/Creats/CreateFeiticoScreen');
   };
 
-  const onDelete = async (id: number) => {
-    const newFeiticos: Array<IFeiticos> = [];
-
-    for (let index = 0; index < feiticos.length; index++) {
-      const feitico = feiticos[index];
-
-      if (feitico.id != id) {
-        newFeiticos.push(feitico);
-      }
-    }
-
-    setFeiticos(newFeiticos);
-    await AsyncStorage.setItem('@PDM-EXPO:feiticos', JSON.stringify(newFeiticos));
-    setModalVisible(false);
+  const openEditScreen = (feitico: IFeiticos) => {
+    router.push({
+      pathname: '/Creats/CreateFeiticoScreen',
+      params: { id: String(feitico.id) },
+    });
   };
-
-  const openModal = () => {
-    setSelectedFeitico(undefined);
-    setModalVisible(true);
-  };
-
-  const openEditModal = (selectedFeitico: IFeiticos) => {
-    setSelectedFeitico(selectedFeitico);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-
 
   return (
-    <MonstrosScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
+    <MonstrosScrollView headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
       <ThemedView style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => openModal()}>
-          <Text style={styles.headerButton}>+</Text>
+        <TouchableOpacity onPress={openCreateScreen}>
+          <Text style={styles.headerButton}>+ Adicionar</Text>
         </TouchableOpacity>
-        <Text style={styles.headerButton}>{text}</Text>
+        <Text style={styles.gpsText}>{gpsText}</Text>
       </ThemedView>
 
       <ThemedView style={styles.container}>
         {feiticos.map(feitico => (
-          <TouchableOpacity onPress={() => openEditModal(feitico)} key={feitico.id}>
-            <Feiticos
-              title={feitico.title}
-              subTitle={feitico.subTitle}
-            />
+          <TouchableOpacity key={feitico.id} onPress={() => openEditScreen(feitico)}>
+            <Feiticos title={feitico.title} subTitle={feitico.subTitle} />
           </TouchableOpacity>
         ))}
-      </ThemedView>
 
-      <FeiticosModal
-        visible={modalVisible}
-        onCancel={closeModal}
-        onAdd={onAdd}
-        onDelete={onDelete}
-        feitico={selectedFeitico}
-      />
+        {feiticos.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Nenhum feitiço cadastrado.</Text>
+            <Text style={styles.emptyText}>Toque em + Adicionar para criar.</Text>
+          </View>
+        ) : null}
+      </ThemedView>
     </MonstrosScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    bottom: 0,
-    left: 0,
-  },
   container: {
     flex: 1,
     backgroundColor: 'gray',
@@ -165,10 +99,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 8,
   },
   headerButton: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 18,
     paddingHorizontal: 20,
+  },
+  gpsText: {
+    marginTop: 8,
+    fontSize: 12,
+    paddingHorizontal: 12,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });

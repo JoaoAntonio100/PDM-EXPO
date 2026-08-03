@@ -1,113 +1,63 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import MonstrosModal from '@/components/modals/MonstrosModal';
 import Monstros from '@/components/Monstros/monstros';
 import MonstrosScrollView from '@/components/MonstrosScrollView';
 import { ThemedView } from '@/components/themed-view';
 import { IMonstros } from '@/interfaces/IMonstros';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function MonstrosListScreen() {
   const [monstros, setMonstros] = useState<IMonstros[]>([]);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedMonstro, setSelectedMonstro] = useState<IMonstros>();
-  const [location, setLocation] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [gpsText, setGpsText] = useState<string>('Obtendo localizacao...');
+
+  const loadMonstros = useCallback(async () => {
+    try {
+      const data = await AsyncStorage.getItem('@PDM-EXPO:monstros');
+      const savedMonstros = data != null ? JSON.parse(data) : [];
+      setMonstros(savedMonstros);
+    } catch (e) {
+      console.error('Failed to load monstros', e);
+    }
+  }, []);
 
   useEffect(() => {
-    async function getData() {
-      try {
-        const data = await AsyncStorage.getItem('@PDM-EXPO:monstros');
-        const savedMonstros = data != null ? JSON.parse(data) : [];
-        setMonstros(savedMonstros);
-      } catch (e) {
-      }
-    }
+    loadMonstros();
+  }, [loadMonstros]);
 
-    getData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      void loadMonstros();
+    }, [loadMonstros]),
+  );
 
   useEffect(() => {
     (async () => {
 
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        setGpsText('GPS sem permissao');
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      const location = await Location.getCurrentPositionAsync({});
+      const lat = location.coords.latitude.toFixed(4);
+      const lon = location.coords.longitude.toFixed(4);
+      setGpsText(`GPS: ${lat}, ${lon}`);
     })();
   }, []);
 
-    let text = 'Waiting...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-
-  const onAdd = async (title: string, subTitle: string, id?: number) => {
-    if (!id || id <= 0) {
-      const newMonstro: IMonstros = {
-        id: Math.random() * 1000,
-        title: title,
-        subTitle: subTitle
-      };
-
-      const monstrosPlus: IMonstros[] = [
-        ...monstros,
-        newMonstro
-      ];
-
-      setMonstros(monstrosPlus);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstrosPlus));
-    } else {
-      monstros.forEach(monstro => {
-        if (monstro.id == id) {
-          monstro.title = title;
-          monstro.subTitle = subTitle;
-        }
-      });
-
-      setMonstros([...monstros]);
-      await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(monstros));
-    }
-
-    setModalVisible(false);
+  const openCreateScreen = () => {
+    router.push('/Creats/CreatMonstroScreen');
   };
 
-  const onDelete = async (id: number) => {
-    const newMonstros: Array<IMonstros> = [];
-
-    for (let index = 0; index < monstros.length; index++) {
-      const monstro = monstros[index];
-
-      if (monstro.id != id) {
-        newMonstros.push(monstro);
-      }
-    }
-
-    setMonstros(newMonstros);
-    await AsyncStorage.setItem('@PDM-EXPO:monstros', JSON.stringify(newMonstros));
-    setModalVisible(false);
-  };
-
-  const openModal = () => {
-    setSelectedMonstro(undefined);
-    setModalVisible(true);
-  };
-
-  const openEditModal = (selectedMonstro: IMonstros) => {
-    setSelectedMonstro(selectedMonstro);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
+  const openEditScreen = (monstro: IMonstros) => {
+    router.push({
+      pathname: '/Creats/CreatMonstroScreen',
+      params: { id: String(monstro.id) },
+    });
   };
 
 
@@ -116,30 +66,29 @@ export default function MonstrosListScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
     >
       <ThemedView style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => openModal()}>
-          <Text style={styles.headerButton}>+</Text>
+        <TouchableOpacity onPress={openCreateScreen}>
+          <Text style={styles.headerButton}>+ Adicionar</Text>
         </TouchableOpacity>
-        <Text style={styles.headerButton}>{text}</Text>
+        <Text style={styles.gpsText}>{gpsText}</Text>
       </ThemedView>
 
       <ThemedView style={styles.container}>
         {monstros.map(monstro => (
-          <TouchableOpacity onPress={() => openEditModal(monstro)} key={monstro.id}>
+          <TouchableOpacity onPress={() => openEditScreen(monstro)} key={monstro.id}>
             <Monstros
               title={monstro.title}
               subTitle={monstro.subTitle}
             />
           </TouchableOpacity>
         ))}
-      </ThemedView>
 
-      <MonstrosModal
-        visible={modalVisible}
-        onCancel={closeModal}
-        onAdd={onAdd}
-        onDelete={onDelete}
-        monstro={selectedMonstro}
-      />
+        {monstros.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Nenhum monstro cadastrado.</Text>
+            <Text style={styles.emptyText}>Toque em + Adicionar para criar.</Text>
+          </View>
+        ) : null}
+      </ThemedView>
     </MonstrosScrollView>
   );
 }
@@ -166,10 +115,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 8,
   },
   headerButton: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 18,
     paddingHorizontal: 20,
+  },
+  gpsText: {
+    marginTop: 8,
+    fontSize: 12,
+    paddingHorizontal: 12,
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });

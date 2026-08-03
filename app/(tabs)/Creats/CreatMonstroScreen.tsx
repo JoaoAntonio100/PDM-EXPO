@@ -1,35 +1,90 @@
 import { ThemedText } from '@/components/themed-text';
 import { IMonstros } from '@/interfaces/IMonstros';
-import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export type CreateMonstroScreenProps = {
-  onAdd: (title: string, subTitle: string, id: number) => void;
-  onCancel: () => void;
-  onDelete: (id: number) => void;
-  monstro?: IMonstros;
-};
+const STORAGE_KEY = '@PDM-EXPO:monstros';
 
-export default function CreateMonstroScreen({ onAdd, onCancel, onDelete, monstro }: CreateMonstroScreenProps) {
+export default function CreateMonstroScreen() {
+  const params = useLocalSearchParams<{ id?: string }>();
   const [title, setTitle] = useState<string>('');
   const [subTitle, setSubTitle] = useState<string>('');
-  const [id, setId] = useState<number>(0);
+
+  const editingId = useMemo(() => {
+    if (!params.id) {
+      return undefined;
+    }
+
+    const parsed = Number(params.id);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }, [params.id]);
 
   useEffect(() => {
-    if (monstro) {
-      setTitle(monstro.title);
-      setSubTitle(monstro.subTitle);
-      setId(monstro.id);
-    } else {
-      setTitle('');
-      setSubTitle('');
-      setId(0);
+    const loadCurrentMonstro = async () => {
+      if (!editingId) {
+        setTitle('');
+        setSubTitle('');
+        return;
+      }
+
+      const data = await AsyncStorage.getItem(STORAGE_KEY);
+      const savedMonstros: IMonstros[] = data != null ? JSON.parse(data) : [];
+      const current = savedMonstros.find(item => item.id === editingId);
+
+      if (current) {
+        setTitle(current.title);
+        setSubTitle(current.subTitle);
+      }
+    };
+
+    void loadCurrentMonstro();
+  }, [editingId]);
+
+  const saveMonstro = async () => {
+    const trimmedTitle = title.trim();
+    const trimmedSubTitle = subTitle.trim();
+
+    if (!trimmedTitle || !trimmedSubTitle) {
+      return;
     }
-  }, [monstro]);
+
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    const savedMonstros: IMonstros[] = data != null ? JSON.parse(data) : [];
+
+    const updatedMonstros = editingId
+      ? savedMonstros.map(item =>
+          item.id === editingId ? { ...item, title: trimmedTitle, subTitle: trimmedSubTitle } : item,
+        )
+      : [...savedMonstros, { id: Date.now(), title: trimmedTitle, subTitle: trimmedSubTitle }];
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMonstros));
+    router.replace('/MonstrosListScreen');
+  };
+
+  const deleteMonstro = async () => {
+    if (!editingId) {
+      return;
+    }
+
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    const savedMonstros: IMonstros[] = data != null ? JSON.parse(data) : [];
+    const updatedMonstros = savedMonstros.filter(item => item.id !== editingId);
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMonstros));
+    router.replace('/MonstrosListScreen');
+  };
+
+  const cancel = () => {
+    router.replace('/MonstrosListScreen');
+  };
+
+  const isEditing = Boolean(editingId);
 
   return (
     <View style={styles.container}>
-        <ThemedText type="title" style={styles.title}>Criar Monstro</ThemedText>
+        <ThemedText type="title" style={styles.title}>{isEditing ? 'Editar Monstro' : 'Criar Monstro'}</ThemedText>
 
         <TextInput
           style={styles.boxInput}
@@ -47,17 +102,25 @@ export default function CreateMonstroScreen({ onAdd, onCancel, onDelete, monstro
         />
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.buttonAdd} onPress={() => onAdd(title, subTitle, id)}>
+          <TouchableOpacity style={styles.buttonAdd} onPress={saveMonstro}>
             <Text style={styles.buttonText}>
-              Salvar
+              {isEditing ? 'Atualizar' : 'Salvar'}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.buttonCancel} onPress={() => onCancel()}>
+          <TouchableOpacity style={styles.buttonCancel} onPress={cancel}>
             <Text style={styles.buttonText}>
               Cancelar
             </Text>
           </TouchableOpacity>
+
+          {isEditing ? (
+            <TouchableOpacity style={styles.buttonDelete} onPress={deleteMonstro}>
+              <Text style={styles.buttonText}>
+                Deletar
+              </Text>
+            </TouchableOpacity>
+          ) : null}
 
         </View>
       </View>
@@ -116,7 +179,7 @@ const styles = StyleSheet.create({
   boxInput: {
     alignSelf: 'center',
     height: 50,
-    width: 1000,
+    width: '100%',
     borderRadius: 10,
     backgroundColor: '#DDD',
     margin: 5,

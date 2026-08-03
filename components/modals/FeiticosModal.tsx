@@ -4,9 +4,9 @@ import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 
 export type FeiticosModalProps = {
   visible: boolean;
-  onAdd: (title: string, subTitle: string, id: number) => void;
-  onCancel: () => void;
-  onDelete: (id: number) => void;
+  onAdd?: (title: string, subTitle: string, id?: number) => void | Promise<void>;
+  onCancel?: () => void;
+  onDelete?: (id: number) => void;
   feitico?: IFeiticos;
 };
 
@@ -28,6 +28,24 @@ export default function FeiticosModal({visible, onAdd, onCancel, onDelete, feiti
     }
   }, [feitico])
 
+  const handleAdd = () => {
+    if (typeof onAdd === 'function') {
+      void onAdd(title, subTitle, id);
+    }
+  };
+
+  const handleCancel = () => {
+    if (typeof onCancel === 'function') {
+      onCancel();
+    }
+  };
+
+  const handleDelete = () => {
+    if (typeof onDelete === 'function') {
+      onDelete(id);
+    }
+  };
+
   return(
     <Modal visible={visible} animationType='fade' transparent={true} onRequestClose={() => {}}>
       <View style={styles.container}>
@@ -48,19 +66,19 @@ export default function FeiticosModal({visible, onAdd, onCancel, onDelete, feiti
           />
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.buttonAdd} onPress={() => onAdd(title, subTitle, id)}>
+            <TouchableOpacity style={styles.buttonAdd} onPress={handleAdd}>
               <Text style={styles.buttonText}>
                 Salvar
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonCancel} onPress={() => onCancel()}>
+            <TouchableOpacity style={styles.buttonCancel} onPress={handleCancel}>
               <Text style={styles.buttonText}>
                 Cancelar
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonDelete} onPress={() => onDelete(id)} disabled={id <= 0}>
+            <TouchableOpacity style={styles.buttonDelete} onPress={handleDelete} disabled={id <= 0}>
               <Text style={styles.buttonText}>
                 Deletar
               </Text>

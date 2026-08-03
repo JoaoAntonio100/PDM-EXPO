@@ -39,18 +39,12 @@ export default function TabLayout() {
         }}
       />
       
-      <Tabs.Screen
+
+            <Tabs.Screen
         name="MonstrosListScreen"
         options={{
           title: 'Lista de Monstros',
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="list" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="MonstrosYugioh"
-        options={{
-          title: 'Monstros Yu-Gi-Oh',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="gamepad" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -63,14 +57,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="Creats/CreateFeiticoScreen"
         options={{
-          title: 'Criar Feitiço',
+          href: null,
+          title: 'Form Feitiço',
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="add" color={color} />,
         }}
       />
       <Tabs.Screen
         name="Creats/CreatMonstroScreen"
         options={{
-          title: 'Criar Monstro',
+          href: null,
+          title: 'Form Monstro',
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="add" color={color} />,
         }}
       />
